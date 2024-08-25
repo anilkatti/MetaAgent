@@ -2,20 +2,20 @@
     "nodes": [
         {
             "name": "call_model",
-            "description": "Invokes an OpenAI model with the input query and figures if it has to the weather tool with place or respond with answer",
+            "description": "Invokes a model with the input query and figures if it already has answer or needs more information",
             "input_names": ["message"],
-            "output_names": ["place_name", "answer"]
+            "output_names": ["place_name", "final_answer"]
         },
         {
-            "name": "weather_tool",
-            "description": "Tool to get the current weather for the given place",
+            "name": "get_weather",
+            "description": "Get the current weather for the given place",
             "input_names": ["place_name"],
-            "output_names": ["current_weather"]
+            "output_names": ["message"]
         }
     ],
     "edges": [
         {
-            "source_node": "weather_tool",
+            "source_node": "get_weather",
             "destination_node": "call_model"
         }
     ],
@@ -24,12 +24,12 @@
             "source_node": "call_model",
             "destinations": [
                 {
-                    "node": "weather_tool",
-                    "condition": "call_tool"
+                    "node": "get_weather",
+                    "condition": "place_name"
                 },
                 {
                     "node": "END",
-                    "condition": "end"
+                    "condition": "final_answer"
                 }
             ]
         }

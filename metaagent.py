@@ -8,20 +8,16 @@ import json
 from utils import AgentState
 
 def should_continue(state, config):
-    last_message = state["messages"][-1]
-    try:
-        message_content = json.loads(last_message.content)
-        if "place_name" in message_content:
-            return "continue"
-        elif "final_answer" in message_content:
-            print(message_content["final_answer"])
-            return "stop"
-        else:
-            return "stop"
-    except json.JSONDecodeError:
-        print("Last message is not a valid JSON")
+    eval_results = state["eval_results"]
+    if len(eval_results) == 0:
+        return "continue"
+    
+    last_result = state["eval_results"][-1].content
+    if "PASS" in last_result:
         return "stop"
-
+    else:
+        return "continue"
+    
 class GraphConfig(TypedDict):
     model_name: Literal["anthropic", "openai"]
 
@@ -47,6 +43,5 @@ workflow.add_edge("evaluator_node", "planner_node")
 
 graph = workflow.compile()
 
-messages = [HumanMessage(content="Build a weather agent!")]
-
-graph.invoke({"messages": messages})
+task = [HumanMessage(content="Build a weather agent!")]
+graph.invoke({"task": task})

@@ -1,4 +1,4 @@
 from utils import _get_model
 
 def planner_node(state, config):
-    pass
+    return {"lla_nodes": [""], "lla_edges": [""], "lla_cond_edges": [""]}

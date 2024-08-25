@@ -11,7 +11,7 @@ class AgentState(TypedDict):
     lla_nodes: List[str]
     lla_edges: List[str]
     lla_cond_edges: List[str]
-    eval_results: List[str]
+    eval_results: Annotated[Sequence[BaseMessage], add_messages]
 
 @lru_cache(maxsize=4)
 def _get_model(model_name: str):

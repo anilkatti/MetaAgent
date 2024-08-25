@@ -1,0 +1,37 @@
+{
+    "nodes": [
+        {
+            "name": "call_model",
+            "description": "Invokes an OpenAI model with the input query and figures if it has to the weather tool with place or respond with answer",
+            "input_names": ["message"],
+            "output_names": ["place_name", "answer"]
+        },
+        {
+            "name": "weather_tool",
+            "description": "Tool to get the current weather for the given place",
+            "input_names": ["place_name"],
+            "output_names": ["current_weather"]
+        }
+    ],
+    "edges": [
+        {
+            "source_node": "weather_tool",
+            "destination_node": "call_model"
+        }
+    ],
+    "cond_edges": [
+        {
+            "source_node": "call_model",
+            "destinations": [
+                {
+                    "node": "weather_tool",
+                    "condition": "call_tool"
+                },
+                {
+                    "node": "END",
+                    "condition": "end"
+                }
+            ]
+        }
+    ]
+}

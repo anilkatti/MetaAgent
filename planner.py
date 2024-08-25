@@ -69,19 +69,22 @@ Try again, fixing the previous attempt. Respond with JSON in the following forma
 )
 
 def planner_node(state: AgentState, config) -> AgentState:
-    assert state.task
+    assert state["task"]
 
     llm = _get_model("anthropic")
 
-    if len(state.eval_results) == 0:
+    if len(state["eval_results"]) == 0:
+        task_desc = state["task"][0].content
+        print(f"Planning agentic workflow for task: \"{task_desc}\" ...")
+        print()
         chain = NEW_PLAN_PROMPT_TEMPLATE | llm
-        response = chain.invoke({"task": state.task, "format": RESPONSE_FORMAT})
+        response = chain.invoke({"task": state["task"], "format": RESPONSE_FORMAT})
         # TODO: handle invalid json
-        state.lla_graph = json.loads(response.content)
-        return state
+        #state.lla_graph = json.loads(response.content)
+        return {"lla_graph": json.loads(response.content)}
     else:
         chain = REVISION_PROMPT_TEMPLATE | llm
-        response = chain.invoke({"task": state.task, "format": RESPONSE_FORMAT, "graph": state.lla_graph, "eval_result": state.eval_results[-1].content})
+        response = chain.invoke({"task": state["task"], "format": RESPONSE_FORMAT, "graph": state["lla_graph"], "eval_result": state["eval_results"][-1].content})
         # TODO: handle invalid json
-        state.lla_graph = json.loads(response.content)
-        return state
+        #state.lla_graph = json.loads(response.content)
+        return {"lla_graph": json.loads(response.content)}

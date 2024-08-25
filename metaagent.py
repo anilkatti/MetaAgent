@@ -5,10 +5,11 @@ from planner import planner_node
 from coder import coder_node
 from evaluator import evaluator_node
 import json
-from utils import AgentState
+from utils import AgentState, outfile
+import sys
 
 MAX_ITERATIONS = 3
-TASK = "Build a weather agent!"
+TASK = sys.argv[1]
 
 class GraphConfig(TypedDict):
     model_name: Literal["anthropic", "openai"]
@@ -50,4 +51,9 @@ workflow.add_edge("evaluator_node", "planner_node")
 graph = workflow.compile()
 
 task = [HumanMessage(content=TASK)]
+
+task_desc = task[0].content
+
+print(f"Crafting an agent for task: \"{task_desc}\" ...")
+print()
 graph.invoke({"task": task})

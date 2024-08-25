@@ -1,24 +1,7 @@
 from utils import _get_model
-from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import PromptTemplate
-from typing import List, Annotated
-from dataclasses import dataclass
 import json
-import os
-
-# TODO: match with other nodes
-@dataclass
-class EvalResult:
-    passed: bool
-    details: str
-
-# TODO: match with other nodes
-@dataclass
-class HLAState():
-    lla_code: str
-    lla_graph: Annotated[dict, "json describing the graph nodes and edges"]
-    task: str
-    eval_results: List[EvalResult]
+from utils import AgentState
 
 RESPONSE_FORMAT ="""
 {
@@ -85,7 +68,7 @@ Try again, fixing the previous attempt. Respond with JSON in the following forma
 """
 )
 
-def planner_node(state: HLAState, config) -> HLAState:
+def planner_node(state: AgentState, config) -> AgentState:
     assert state.task
 
     llm = _get_model("anthropic")
@@ -98,7 +81,7 @@ def planner_node(state: HLAState, config) -> HLAState:
         return state
     else:
         chain = REVISION_PROMPT_TEMPLATE | llm
-        response = chain.invoke({"task": state.task, "format": RESPONSE_FORMAT, "graph": state.lla_graph, "eval_result": state.eval_results[-1].details})
+        response = chain.invoke({"task": state.task, "format": RESPONSE_FORMAT, "graph": state.lla_graph, "eval_result": state.eval_results[-1].content})
         # TODO: handle invalid json
         state.lla_graph = json.loads(response.content)
         return state

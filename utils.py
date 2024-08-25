@@ -1,16 +1,14 @@
 from functools import lru_cache
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
-from typing import TypedDict, Literal, Annotated, Sequence, List
+from typing import TypedDict, Annotated, Sequence
 from langgraph.graph import add_messages
 from langchain_core.messages import BaseMessage
 
 class AgentState(TypedDict):
     task: str
     lla_code: str
-    lla_nodes: List[str]
-    lla_edges: List[str]
-    lla_cond_edges: List[str]
+    lla_graph: Annotated[dict, "json describing the graph nodes and edges"]
     eval_results: Annotated[Sequence[BaseMessage], add_messages]
 
 @lru_cache(maxsize=4)

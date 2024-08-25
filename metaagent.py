@@ -7,19 +7,25 @@ from evaluator import evaluator_node
 import json
 from utils import AgentState
 
-def should_continue(state, config):
+MAX_ITERATIONS = 3
+TASK = "Build a weather agent!"
+
+class GraphConfig(TypedDict):
+    model_name: Literal["anthropic", "openai"]
+
+def should_continue(state: AgentState, config: GraphConfig):
     eval_results = state["eval_results"]
     if len(eval_results) == 0:
         return "continue"
+    
+    if len(eval_results) >= MAX_ITERATIONS:
+        return "stop"
     
     last_result = state["eval_results"][-1].content
     if "PASS" in last_result:
         return "stop"
     else:
         return "continue"
-    
-class GraphConfig(TypedDict):
-    model_name: Literal["anthropic", "openai"]
 
 workflow = StateGraph(AgentState, config_schema=GraphConfig)
 
@@ -43,5 +49,5 @@ workflow.add_edge("evaluator_node", "planner_node")
 
 graph = workflow.compile()
 
-task = [HumanMessage(content="Build a weather agent!")]
+task = [HumanMessage(content=TASK)]
 graph.invoke({"task": task})
